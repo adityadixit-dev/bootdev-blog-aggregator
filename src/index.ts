@@ -1,14 +1,18 @@
 import { handlerAddFeed } from "./commands/add-feed.js";
 import { handlerAgg } from "./commands/agg.js";
 import { handlerFeeds } from "./commands/feeds.js";
+import { handlerFollow } from "./commands/follow.js";
+import { handlerFollowing } from "./commands/following.js";
 import {
   CommandsRegistry,
+  middlewareLoggedIn,
   registerCommand,
   runCommand,
 } from "./commands/index.js";
 import { handlerLogin } from "./commands/login.js";
 import { handlerRegister } from "./commands/register.js";
 import { handlerReset } from "./commands/reset.js";
+import { handlerUnfollow } from "./commands/unfollow.js";
 import { handlerUsers } from "./commands/users.js";
 
 async function main() {
@@ -30,8 +34,11 @@ function createCommandRegistration(registry: CommandsRegistry) {
   registerCommand(registry, "reset", handlerReset);
   registerCommand(registry, "users", handlerUsers);
   registerCommand(registry, "agg", handlerAgg);
-  registerCommand(registry, "addfeed", handlerAddFeed);
+  registerCommand(registry, "addfeed", middlewareLoggedIn(handlerAddFeed));
   registerCommand(registry, "feeds", handlerFeeds);
+  registerCommand(registry, "follow", middlewareLoggedIn(handlerFollow));
+  registerCommand(registry, "following", middlewareLoggedIn(handlerFollowing));
+  registerCommand(registry, "unfollow", middlewareLoggedIn(handlerUnfollow));
 }
 
 function getCommandAndArguments(): [string, string[]] {

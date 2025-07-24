@@ -1,3 +1,5 @@
+import { readConfig } from "../config.js";
+import { getUserByName, UserSelect } from "../db/queries/users.js";
 import {
   WrongArguementNumberError,
   CommandNotFoundError,
@@ -7,7 +9,26 @@ export type CommandHandler = (
   cmdName: string,
   ...args: string[]
 ) => Promise<void>;
+
+type UserCommandHandler = (
+  cmdName: string,
+  user: UserSelect,
+  ...args: string[]
+) => Promise<void>;
+
 export type CommandsRegistry = Record<string, CommandHandler>;
+
+export function middlewareLoggedIn(
+  handler: UserCommandHandler,
+): CommandHandler {
+  return async (cmdName: string, ...args: string[]) => {
+    const user = await getUserByName(readConfig().currentUserName);
+    if (!user) {
+      throw new Error("User Not Found");
+    }
+    await handler(cmdName, user, ...args);
+  };
+}
 
 export async function runCommand(
   registry: CommandsRegistry,
@@ -24,9 +45,11 @@ export async function runCommand(
         console.log(err.message);
       }
 
+      console.log("unknow error");
       throw err;
     }
   } else {
+    console.log("command not found");
     throw new CommandNotFoundError(
       `Command ${cmdName} was not found in registry`,
     );

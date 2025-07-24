@@ -7,6 +7,6 @@ export function printFeed(feed: Feed, user: UserSelect) {
   }
 
   for (const [key, val] of Object.entries(user)) {
-    console.log(`Feed ${key} = ${val}`);
+    console.log(`User ${key} = ${val}`);
   }
 }
